@@ -3,6 +3,8 @@
 #include "ros/spinner.h"
 #include <iostream>
 
+// schussstärke zwischen 101 & 3.5k
+// schussweite ca 12m
 void chatterCallback(sensor_msgs::LaserScanPtr msg)
 {
     std::cout<<"in callback"<< std::endl;
@@ -24,6 +26,7 @@ int main(int argc, char **argv)
         {
             sleep(1);
         }
+
         sub.shutdown();
         delete sub;
     }
@@ -34,3 +37,4 @@ int main(int argc, char **argv)
 
   return 0;
 }
+-
