@@ -95,7 +95,9 @@ def plot_curves(samples, curve, name):
     plt.tight_layout()
     plt.show()
     
-
+def interpolate(curve):
+    koeff = np.polyfit(curve['x'], curve['y'], 2)
+    return koeff
 
 if __name__ == '__main__':
     data = get_data()
@@ -111,5 +113,11 @@ if __name__ == '__main__':
         plot_curves(samples, curves[name], name)
 
     #for each curve calculate initial angle and velocity
-    for curve in curves:
-        pass
+    interps = {}
+    for name, curve in curves.iteritems():
+        interps[name] = interpolate(curve)
+        
+    k2, k1, k0 = interps['1500']
+    x_values = np.linspace(0, 9, 20)
+    y_values = map(lambda x: k2*x**2 + k1*x + k0, x_values)
+    plt.plot(x_values, y_values)
