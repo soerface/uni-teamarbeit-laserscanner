@@ -3,6 +3,7 @@
 import os
 from pprint import pprint
 import re
+import numpy as np
 
 
 def get_data():
@@ -35,4 +36,20 @@ def get_data():
 
 
 if __name__ == '__main__':
-    pprint(get_data())
+    data = get_data()
+    
+    for name, samples in data.iteritems():
+        pprint(name)
+        pprint(samples)
+
+        x = []
+        y = []
+        for sample in samples:
+            x.append(sample['x'])
+            y.append(sample['y'])
+            
+        for tupel in zip(*x):
+            print np.mean(tupel)
+            
+        for tupel in zip(*y):
+            print np.mean(tupel)    
