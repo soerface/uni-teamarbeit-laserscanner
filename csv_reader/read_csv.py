@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import os
-from pprint import pprint
 import re
 import numpy as np
 
@@ -35,21 +34,58 @@ def get_data():
     return result
 
 
+
 if __name__ == '__main__':
     data = get_data()
     
+    #for each power
     for name, samples in data.iteritems():
-        pprint(name)
-        pprint(samples)
-
+        #list of lists
         x = []
         y = []
+        
+        max_x_len = 0
+        max_y_len = 0
+        #for each shot
         for sample in samples:
             x.append(sample['x'])
+            max_x_len = max(len(sample['x']), max_x_len)
             y.append(sample['y'])
+            max_y_len = max(len(sample['y']), max_y_len)
             
+        #bring lists in x,y to same length
+        for sample in x:
+            a = [None] * (max_x_len - len(sample))
+            sample.extend(a)
+            
+        for sample in y:
+            a = [None] * (max_y_len - len(sample))
+            sample.extend(a)
+        
+        x_result = []
+        y_result = []
+        #match first, second, ... to one list
         for tupel in zip(*x):
-            print np.mean(tupel)
+            l = [x for x in tupel if x is not None]
+            x_result.append(np.mean(l))
             
         for tupel in zip(*y):
-            print np.mean(tupel)    
+            l = [y for y in tupel if y is not None]
+            y_result.append(np.mean(l))
+        
+        #print result for each power  
+        print '%s, x: %s' % (name, x_result)
+        print '%s, y: %s' % (name, y_result)
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
