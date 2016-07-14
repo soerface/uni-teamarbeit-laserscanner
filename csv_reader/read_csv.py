@@ -3,6 +3,7 @@
 import os
 import re
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def get_data():
@@ -34,58 +35,81 @@ def get_data():
     return result
 
 
+def mean_curve(samples):
+    #list of lists
+    x = []
+    y = []
+    
+    max_x_len = 0
+    max_y_len = 0
+
+    #for each shot
+    for sample in samples:
+        x.append(sample['x'])
+        max_x_len = max(len(sample['x']), max_x_len)
+        y.append(sample['y'])
+        max_y_len = max(len(sample['y']), max_y_len)
+        
+        #plt.plot(sample['x'], sample['y'])
+        
+    #bring lists in x,y to same length
+    for sample in x:
+        a = [None] * (max_x_len - len(sample))
+        sample.extend(a)
+        
+    for sample in y:
+        a = [None] * (max_y_len - len(sample))
+        sample.extend(a)
+    
+    x_result = []
+    y_result = []
+    #match first, second, ... to one list
+    for tupel in zip(*x):
+        l = [xi for xi in tupel if xi is not None]
+        x_result.append(np.mean(l))
+        
+    for tupel in zip(*y):
+        l = [yi for yi in tupel if yi is not None]
+        y_result.append(np.mean(l))
+    
+    #print result for each power  
+    #print '%s, x: %s' % (name, x_result)
+    #print '%s, y: %s' % (name, y_result)
+    
+    return {'x': x_result, 'y': y_result}
+    
+
+#plot for power
+def plot_curves(samples, curve, name):
+    
+    plt.subplot(len(data), 1, i+1)
+    plt.xlabel('width')
+    plt.ylabel('height')
+    plt.title(name)
+    
+    for sample in samples:
+        plt.plot(sample['x'], sample['y'])
+        
+    plt.scatter(curve['x'], curve['y'])
+    
+    plt.tight_layout()
+    plt.show()
+    
+
 
 if __name__ == '__main__':
     data = get_data()
     
     #for each power
-    for name, samples in data.iteritems():
-        #list of lists
-        x = []
-        y = []
+    curves = {}
+    for i, dat in enumerate(data.iteritems()):
+        name, samples = dat
         
-        max_x_len = 0
-        max_y_len = 0
-        #for each shot
-        for sample in samples:
-            x.append(sample['x'])
-            max_x_len = max(len(sample['x']), max_x_len)
-            y.append(sample['y'])
-            max_y_len = max(len(sample['y']), max_y_len)
-            
-        #bring lists in x,y to same length
-        for sample in x:
-            a = [None] * (max_x_len - len(sample))
-            sample.extend(a)
-            
-        for sample in y:
-            a = [None] * (max_y_len - len(sample))
-            sample.extend(a)
+        curves[name] = mean_curve(samples)
         
-        x_result = []
-        y_result = []
-        #match first, second, ... to one list
-        for tupel in zip(*x):
-            l = [x for x in tupel if x is not None]
-            x_result.append(np.mean(l))
-            
-        for tupel in zip(*y):
-            l = [y for y in tupel if y is not None]
-            y_result.append(np.mean(l))
-        
-        #print result for each power  
-        print '%s, x: %s' % (name, x_result)
-        print '%s, y: %s' % (name, y_result)
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+        #plot current power
+        plot_curves(samples, curves[name], name)
+
+    #for each curve calculate initial angle and velocity
+    for curve in curves:
+        pass
