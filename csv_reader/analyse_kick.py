@@ -19,7 +19,11 @@ def get_data():
             y = []
             with open(os.path.join(data_directory, filename)) as f:
                     for line in f:
-                        x_value, y_value = line.split(',')
+                        try:
+                            x_value, y_value = line.split(',')
+                        except ValueError:
+                            print 'Invalid line:', line
+                            continue
                         try:
                             x_value = float(x_value)
                             y_value = float(y_value)
@@ -112,12 +116,50 @@ if __name__ == '__main__':
         #plot current power
         plot_curves(samples, curves[name], name)
 
-    #for each curve calculate initial angle and velocity
+    #interps holds the koefficients for each shooting power
     interps = {}
     for name, curve in curves.iteritems():
         interps[name] = interpolate(curve)
-        
-    k2, k1, k0 = interps['1500']
-    x_values = np.linspace(0, 9, 20)
-    y_values = map(lambda x: k2*x**2 + k1*x + k0, x_values)
-    plt.plot(x_values, y_values)
+    
+    #k2, k1, k0 = interps['1500']
+    #y_values = map(lambda x: k2*x**2 + k1*x + k0, x_values)
+    #plt.plot(x_values, y_values)
+    
+    i = 1;
+    for name, koeff in interps.iteritems():
+        #quadratic approximation
+        p = np.poly1d(koeff)
+        #derivative of p
+        pd = p.deriv()
+
+        #plot functions
+#        x_values = np.linspace(-1, 10, 20)
+#    
+#        plt.subplot(len(interps), 1, i)
+#        i += 1
+#        plt.xlabel('width')
+#        plt.ylabel('height')
+#        plt.title(name)
+#        plt.tight_layout()
+#
+#        plt.plot(x_values, pd(x_values))
+#        plt.plot(x_values, p(x_values))
+
+        distance = np.roots(p)[0]
+        root = np.roots(p)[1]
+        slope = pd(root)
+        angle = np.arctan(slope)
+        velocity = np.sqrt((distance * 9.81) / np.sin(2 * angle))
+
+        print name, ":"
+        #print "Nullstellen:", root
+        #print "Steigung:   ", slope
+        print "Winkel.:    ", angle
+        print "Geschw.:    ", velocity
+        print
+    
+    #showing line with inlcine 1
+    #l = np.poly1d([0.814,0])
+    #plt.plot(x_values, l(x_values))
+
+    
