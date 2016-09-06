@@ -18,19 +18,21 @@ def get_data():
             x = []
             y = []
             with open(os.path.join(data_directory, filename)) as f:
-                    for line in f:
-                        try:
-                            x_value, y_value = line.split(',')
-                        except ValueError:
-                            print 'Invalid line:', line
-                            continue
-                        try:
-                            x_value = float(x_value)
-                            y_value = float(y_value)
-                        except ValueError:
-                            continue
-                        x.append(x_value)
-                        y.append(y_value)
+                for i, line in enumerate(f):
+                    try:
+                        x_value, y_value = line.split(',')
+                    except ValueError:
+                        print 'Invalid line %d in file "%s": %s' % (i+1, filename, line)
+                        if not line:
+                            print 'remove trailing (empty) lines'
+                        continue
+                    try:
+                        x_value = float(x_value)
+                        y_value = float(y_value)
+                    except ValueError:
+                        continue
+                    x.append(x_value)
+                    y.append(y_value)
             sample = {
                 'x': x,
                 'y': y,
@@ -40,21 +42,18 @@ def get_data():
 
 
 def mean_curve(samples):
-    #list of lists
     x = []
     y = []
     
     max_x_len = 0
     max_y_len = 0
 
-    #for each shot
+    #copy samples in lists and determine max x and y list-length
     for sample in samples:
         x.append(sample['x'])
         max_x_len = max(len(sample['x']), max_x_len)
         y.append(sample['y'])
         max_y_len = max(len(sample['y']), max_y_len)
-        
-        #plt.plot(sample['x'], sample['y'])
         
     #bring lists in x,y to same length
     for sample in x:
@@ -67,83 +66,35 @@ def mean_curve(samples):
     
     x_result = []
     y_result = []
-    #match first, second, ... to one list
-    for tupel in zip(*x):
+    #calculate mean values
+        for tupel in zip(*x):
         l = [xi for xi in tupel if xi is not None]
         x_result.append(np.mean(l))
         
     for tupel in zip(*y):
         l = [yi for yi in tupel if yi is not None]
-        y_result.append(np.mean(l))
-    
-    #print result for each power  
-    #print '%s, x: %s' % (name, x_result)
-    #print '%s, y: %s' % (name, y_result)
+        y_result.append(np.mean(l)
     
     return {'x': x_result, 'y': y_result}
-    
-
-#plot for power
-def plot_curves(samples, curve, name):
-    
-    plt.subplot(len(data), 1, i+1)
-    plt.xlabel('width')
-    plt.ylabel('height')
-    plt.title(name)
-    
-    for sample in samples:
-        plt.plot(sample['x'], sample['y'])
-        
-    plt.scatter(curve['x'], curve['y'])
-    
-    plt.tight_layout()
-    plt.show()
-    
-def interpolate(curve):
-    koeff = np.polyfit(curve['x'], curve['y'], 2)
-    return koeff
 
 if __name__ == '__main__':
+    #get data from files
     data = get_data()
     
-    #for each power
+    #for each power calculate mean curve
     curves = {}
     for i, dat in enumerate(data.iteritems()):
         name, samples = dat
-        
         curves[name] = mean_curve(samples)
-        
-        #plot current power
-        plot_curves(samples, curves[name], name)
 
-    #interps holds the koefficients for each shooting power
-    interps = {}
     for name, curve in curves.iteritems():
-        interps[name] = interpolate(curve)
+        #calculate koefficients for each power
+        koeff = np.polyfit(curve['x'], curve['y'], 2)
     
-    #k2, k1, k0 = interps['1500']
-    #y_values = map(lambda x: k2*x**2 + k1*x + k0, x_values)
-    #plt.plot(x_values, y_values)
-    
-    i = 1;
-    for name, koeff in interps.iteritems():
         #quadratic approximation
         p = np.poly1d(koeff)
         #derivative of p
         pd = p.deriv()
-
-        #plot functions
-#        x_values = np.linspace(-1, 10, 20)
-#    
-#        plt.subplot(len(interps), 1, i)
-#        i += 1
-#        plt.xlabel('width')
-#        plt.ylabel('height')
-#        plt.title(name)
-#        plt.tight_layout()
-#
-#        plt.plot(x_values, pd(x_values))
-#        plt.plot(x_values, p(x_values))
 
         distance = np.roots(p)[0]
         root = np.roots(p)[1]
@@ -157,9 +108,3 @@ if __name__ == '__main__':
         print "Winkel.:    ", angle
         print "Geschw.:    ", velocity
         print
-    
-    #showing line with inlcine 1
-    #l = np.poly1d([0.814,0])
-    #plt.plot(x_values, l(x_values))
-
-    
