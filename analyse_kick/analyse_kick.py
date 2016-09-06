@@ -3,8 +3,6 @@
 import os
 import re
 import numpy as np
-from matplotlib import pyplot as plt
-
 
 def get_data():
     current_path = os.path.realpath(__file__)
@@ -67,14 +65,14 @@ def mean_curve(samples):
     x_result = []
     y_result = []
     #calculate mean values
-        for tupel in zip(*x):
+    for tupel in zip(*x):
         l = [xi for xi in tupel if xi is not None]
         x_result.append(np.mean(l))
         
     for tupel in zip(*y):
         l = [yi for yi in tupel if yi is not None]
-        y_result.append(np.mean(l)
-    
+        y_result.append(np.mean(l))
+
     return {'x': x_result, 'y': y_result}
 
 if __name__ == '__main__':
