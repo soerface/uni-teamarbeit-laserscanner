@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from datetime import datetime
 import os
 import re
 import numpy as np
@@ -38,6 +39,17 @@ def get_data():
             result.setdefault(match.group(1), []).append(sample)
     return result
 
+def write_to_file(name, angle, velocity):
+	timestamp = datetime.now().strftime('%Y-%m-%d')
+	directory = os.path.join('results', timestamp)
+	if not os.path.exists(directory):
+		os.makedirs(directory)
+	filename = '%s.csv' % name
+	with open(os.path.join(directory, filename), 'w') as f:
+		f.writelines([
+		'winkel,geschwindigkeit\n',
+		'%f,%f' % (angle, velocity)
+		])
 
 def mean_curve(samples):
     x = []
@@ -100,9 +112,10 @@ if __name__ == '__main__':
         angle = np.arctan(slope)
         velocity = np.sqrt((distance * 9.81) / np.sin(2 * angle))
 
-        print name, ":"
+        print "%s:" % name
         #print "Nullstellen:", root
         #print "Steigung:   ", slope
         print "Winkel.:    ", angle
         print "Geschw.:    ", velocity
         print
+        write_to_file(name, angle, velocity)
