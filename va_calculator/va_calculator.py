@@ -113,7 +113,7 @@ if __name__ == '__main__':
         velocity = np.sqrt((distance * 9.81) / np.sin(2 * angle))
 
         print "%s:" % name
-        #print "Nullstellen:", root
+        #print "Nullstelle:", root
         #print "Steigung:   ", slope
         print "Winkel.:    ", angle
         print "Geschw.:    ", velocity
